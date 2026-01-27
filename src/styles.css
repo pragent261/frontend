@@ -34,6 +34,9 @@ body {
 
 .app-content {
   padding: 20px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* Sidebar */
@@ -230,10 +233,14 @@ body {
 }
 
 .topbar__bookmark {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #1f1f1f;
-  border-radius: 4px;
+  font-size: 20px;
+  color: #1f1f1f;
+}
+
+.topbar__profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .topbar__avatar {
@@ -251,6 +258,12 @@ body {
   width: 48px;
   height: 48px;
   border-radius: 50%;
+}
+
+.topbar__profile-text {
+  font-size: 14px;
+  color: #1f1f1f;
+  white-space: nowrap;
 }
 
 .task-main__toolbar {

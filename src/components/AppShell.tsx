@@ -1,13 +1,16 @@
-﻿import { Layout } from "antd";
+﻿import { Badge, Input, Layout } from "antd";
 import { NavLink, Outlet } from "react-router-dom";
 import {
-  BookOutlined,
+  BellOutlined,
   HistoryOutlined,
   HomeOutlined,
+  MailOutlined,
+  SearchOutlined,
+  BookOutlined,
   TeamOutlined,
   UserOutlined
 } from "@ant-design/icons";
-import { sidebarStar } from "../figmaAssets";
+import { campaignBanner, sidebarStar, topAvatar } from "../figmaAssets";
 import "../styles.css";
 
 const { Sider, Content } = Layout;
@@ -40,7 +43,9 @@ export default function AppShell() {
             >
               {item.icon}
               <span>{item.label}</span>
-              {item.badge ? <span className="sidebar__badge">{item.badge}</span> : null}
+              {item.badge ? (
+                <span className="sidebar__badge">{item.badge}</span>
+              ) : null}
               {item.pill ? <span className="sidebar__pill">{item.pill}</span> : null}
             </NavLink>
           ))}
@@ -57,6 +62,38 @@ export default function AppShell() {
 
       <Layout>
         <Content className="app-content">
+          <header className="topbar">
+            <div className="topbar__search">
+              <SearchOutlined />
+              <Input
+                className="topbar__input"
+                placeholder="请输入关键词..."
+                bordered={false}
+              />
+            </div>
+
+            <div className="topbar__banner">
+              <img className="topbar__banner-icon" src={campaignBanner} alt="" />
+              <span className="topbar__banner-text">
+                现在充值即可获得额外积分奖励
+              </span>
+              <div className="topbar__banner-btn">立即存入资金</div>
+            </div>
+
+            <div className="topbar__actions">
+              <MailOutlined />
+              <BookOutlined className="topbar__bookmark" />
+              <Badge count={1} size="small" color="#dc3848">
+                <BellOutlined style={{ fontSize: '21px'}} />
+              </Badge>
+              <div className="topbar__profile">
+                <div className="topbar__avatar">
+                  <img src={topAvatar} alt="" />
+                </div>
+                <span className="topbar__profile-text">登录/注册</span>
+              </div>
+            </div>
+          </header>
           <Outlet />
         </Content>
       </Layout>
