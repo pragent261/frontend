@@ -11,7 +11,7 @@ export const router = createBrowserRouter([
   {
     element: <AppShell />,
     children: [
-      { index: true, element: <Navigate to="/tasks" replace /> },
+      { index: true, element: <Navigate to="/home" replace /> },
       { path: "/home", element: <HomePage /> },
       { path: "/tasks", element: <MyTasksPage /> },
       { path: "/talent", element: <TalentPage /> },
