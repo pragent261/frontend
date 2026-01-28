@@ -8,12 +8,18 @@ const { Text } = Typography;
 type DashboardSummary = {
   campaigns_total: number;
   collaborations_active: number;
+  collaborations_need_confirm: number;
+  collaborations_need_ship: number;
+  collaborations_need_script_review: number;
   scripts_pending: number;
 };
 
 const emptySummary: DashboardSummary = {
   campaigns_total: 0,
   collaborations_active: 0,
+  collaborations_need_confirm: 0,
+  collaborations_need_ship: 0,
+  collaborations_need_script_review: 0,
   scripts_pending: 0
 };
 
@@ -76,10 +82,10 @@ export default function TaskProgress() {
         <Text className="todo-card__title">投放代办事项</Text>
         <div className="todo-card__tabs">
           <div className="todo-card__tab todo-card__tab--active">
-            确认合作({data.collaborations_active})
+            确认合作({data.collaborations_need_confirm})
           </div>
-          <div className="todo-card__tab">产品寄送 ({data.campaigns_total})</div>
-          <div className="todo-card__tab">脚本审核 ({data.scripts_pending})</div>
+          <div className="todo-card__tab">产品寄送 ({data.collaborations_need_ship})</div>
+          <div className="todo-card__tab">脚本审核 ({data.collaborations_need_script_review})</div>
         </div>
         <div className="todo-card__hint">
           <span className="todo-card__line" />

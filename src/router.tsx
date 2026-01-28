@@ -6,6 +6,7 @@ import MyTasksPage from "./pages/MyTasksPage";
 import TalentPage from "./pages/TalentPage";
 import HistoryPage from "./pages/HistoryPage";
 import ReviewPage from "./pages/ReviewPage";
+import PlanPage from "./pages/PlanPage";
 
 export const router = createBrowserRouter([
   {
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/home" replace /> },
       { path: "/home", element: <HomePage /> },
       { path: "/tasks", element: <MyTasksPage /> },
+      { path: "/plan", element: <PlanPage /> },
       { path: "/talent", element: <TalentPage /> },
       { path: "/history", element: <HistoryPage /> },
       { path: "/review", element: <ReviewPage /> },

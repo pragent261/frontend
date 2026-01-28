@@ -8,7 +8,8 @@ import {
   SearchOutlined,
   BookOutlined,
   TeamOutlined,
-  UserOutlined
+  UserOutlined,
+  RocketOutlined
 } from "@ant-design/icons";
 import { campaignBanner, sidebarStar, topAvatar } from "../figmaAssets";
 import "../styles.css";
@@ -18,6 +19,7 @@ const { Sider, Content } = Layout;
 const navItems = [
   { to: "/home", label: "主页", icon: <HomeOutlined /> },
   { to: "/tasks", label: "我的任务", icon: <UserOutlined />, badge: "0" },
+  { to: "/plan", label: "投放计划", icon: <RocketOutlined /> },
   { to: "/talent", label: "寻找达人", icon: <TeamOutlined />, pill: "测试版" },
   { to: "/history", label: "历史邀约", icon: <HistoryOutlined /> },
   { to: "/review", label: "复盘统计", icon: <BookOutlined /> }
