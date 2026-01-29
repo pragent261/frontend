@@ -7,6 +7,7 @@ import TalentPage from "./pages/TalentPage";
 import HistoryPage from "./pages/HistoryPage";
 import ReviewPage from "./pages/ReviewPage";
 import PlanPage from "./pages/PlanPage";
+import CampaignDetailPage from "./pages/CampaignDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
       { path: "/home", element: <HomePage /> },
       { path: "/tasks", element: <MyTasksPage /> },
       { path: "/plan", element: <PlanPage /> },
+      { path: "/plan/:id", element: <CampaignDetailPage /> },
       { path: "/talent", element: <TalentPage /> },
       { path: "/history", element: <HistoryPage /> },
       { path: "/review", element: <ReviewPage /> },

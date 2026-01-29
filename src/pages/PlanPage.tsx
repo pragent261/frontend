@@ -1,6 +1,7 @@
-import { Button, Card, Typography, Dropdown, Spin, Empty } from "antd";
+import { Button, Card, Typography, Dropdown, Spin, Empty, message } from "antd";
 import { PlusOutlined, MoreOutlined, CloudOutlined } from "@ant-design/icons";
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import CreateCampaignModal from "../components/CreateCampaignModal";
 import "../styles.css";
 
@@ -26,6 +27,7 @@ type CampaignListResponse = {
 };
 
 export default function PlanPage() {
+  const navigate = useNavigate();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,8 +113,24 @@ export default function PlanPage() {
                 { type: "divider" },
                 { key: "delete", label: "删除", danger: true }
               ],
-              onClick: ({ key }) => {
-                if (key === "delete") {
+              onClick: async ({ key }) => {
+                if (key === "view") {
+                  navigate(`/plan/${campaign.id}`);
+                } else if (key === "edit") {
+                  navigate(`/plan/${campaign.id}`);
+                } else if (key === "publish" && campaign.status === "draft") {
+                  try {
+                    const response = await fetch(`/v1/campaigns/${campaign.id}/publish`, {
+                      method: "POST"
+                    });
+                    if (!response.ok) throw new Error("发布失败");
+                    message.success("投放计划已发布");
+                    fetchCampaigns();
+                  } catch (err) {
+                    console.error("Publish error:", err);
+                    message.error("发布失败，请稍后重试");
+                  }
+                } else if (key === "delete") {
                   handleDelete(campaign.id);
                 }
               }

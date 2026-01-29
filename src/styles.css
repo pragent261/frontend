@@ -1411,3 +1411,73 @@ body {
 .create-campaign__field .ant-pagination {
   margin-top: 12px;
 }
+
+/* Campaign Detail Page */
+.campaign-detail {
+  padding: 24px;
+  background: #f7f7f8;
+  min-height: 100%;
+}
+
+.campaign-detail__loading,
+.campaign-detail__error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campaign-detail__header {
+  margin-bottom: 24px;
+}
+
+.campaign-detail__back {
+  color: #666;
+  padding: 0;
+  margin-bottom: 12px;
+}
+
+.campaign-detail__back:hover {
+  color: #f90;
+}
+
+.campaign-detail__title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.campaign-detail__title {
+  margin: 0 !important;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.campaign-detail__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.campaign-detail__card {
+  margin-bottom: 24px;
+}
+
+.campaign-detail__card .ant-descriptions-item-label {
+  background: #fafafa;
+  font-weight: 500;
+}
+
+.campaign-detail .ant-tabs-nav {
+  margin-bottom: 16px;
+}
+
+.campaign-detail .ant-tabs-tab {
+  font-size: 14px;
+}
+
+.campaign-detail .ant-tabs-tab-active {
+  font-weight: 500;
+}
