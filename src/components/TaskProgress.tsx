@@ -19,6 +19,8 @@ type TaskItem = {
   collaboration_id: string;
   collaboration_status: string;
   influencer_id: string;
+  shipping_tracking_number?: string | null;
+  script_text?: string | null;
   campaign: {
     id: string;
     name: string;
@@ -543,6 +545,14 @@ export default function TaskProgress() {
                   </Text>
                 </div>
               </div>
+              {item.script_text ? (
+                <div className="collab-card__script">
+                  <Text type="secondary">脚本内容</Text>
+                  <Text className="collab-card__script-text">
+                    {item.script_text}
+                  </Text>
+                </div>
+              ) : null}
               <div className="collab-card__actions">
                 <Button
                   type="primary"

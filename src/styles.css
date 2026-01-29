@@ -496,6 +496,23 @@ body {
   border-color: #fb6011;
 }
 
+.collab-card__script {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.collab-card__script-text {
+  font-size: 14px;
+  color: #111827;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .todo-card__empty {
   margin-top: 60px;
   display: flex;
