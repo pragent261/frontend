@@ -2,6 +2,7 @@ import { Button, Modal, Steps, Input, Upload, Table, Select, message } from "ant
 import { CloseOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import { useState, useCallback } from "react";
 import type { UploadFile } from "antd/es/upload/interface";
+import * as XLSX from "xlsx";
 import "../styles.css";
 
 const { Dragger } = Upload;
@@ -219,21 +220,43 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
     };
 
 
-
     // 解析上传的 Excel 文件预览列
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const parseExcelColumns = (_file: UploadFile) => {
-        // 模拟解析结果
-        const mockColumns = [
-            { name: "Bread", type: "" },
-            { name: "Jelly", type: "" },
-            { name: "Peanut Butter", type: "" },
-            { name: "bread_buy", type: "" },
-            { name: "jelly_buy", type: "" },
-            { name: "PB_buy", type: "" }
-        ];
-        return mockColumns;
-    };
+    const parseExcelFile = useCallback(async (file: File, target: "influencers" | "content") => {
+        try {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data, { type: "array" });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+
+            // 获取表头 (第一行)
+            const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+            const headers: { name: string; type: string }[] = [];
+
+            for (let col = range.s.c; col <= range.e.c; col++) {
+                const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+                const cell = worksheet[cellAddress];
+                if (cell && cell.v) {
+                    headers.push({ name: String(cell.v), type: "" });
+                }
+            }
+
+            if (headers.length === 0) {
+                message.warning("未能解析到表头，请确保文件格式正确");
+                return;
+            }
+
+            if (target === "influencers") {
+                updateFormData("influencerColumns", headers);
+            } else {
+                updateFormData("contentColumns", headers);
+            }
+
+            message.success(`成功解析 ${headers.length} 个列`);
+        } catch (error) {
+            console.error("Excel parsing error:", error);
+            message.error("文件解析失败，请确保文件格式正确");
+        }
+    }, [updateFormData]);
 
     const renderBasicInfo = () => (
         <div className="create-campaign__section">
@@ -380,9 +403,10 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                     fileList={formData.influencerFiles}
                     onChange={info => {
                         updateFormData("influencerFiles", info.fileList);
-                        if (info.fileList.length > 0) {
-                            const columns = parseExcelColumns(info.fileList[0]);
-                            updateFormData("influencerColumns", columns);
+                        if (info.fileList.length > 0 && info.fileList[0].originFileObj) {
+                            parseExcelFile(info.fileList[0].originFileObj, "influencers");
+                        } else {
+                            updateFormData("influencerColumns", []);
                         }
                     }}
                     beforeUpload={() => false}
@@ -503,9 +527,10 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                     fileList={formData.contentBriefFiles}
                     onChange={info => {
                         updateFormData("contentBriefFiles", info.fileList);
-                        if (info.fileList.length > 0) {
-                            const columns = parseExcelColumns(info.fileList[0]);
-                            updateFormData("contentColumns", columns);
+                        if (info.fileList.length > 0 && info.fileList[0].originFileObj) {
+                            parseExcelFile(info.fileList[0].originFileObj, "content");
+                        } else {
+                            updateFormData("contentColumns", []);
                         }
                     }}
                     beforeUpload={() => false}
