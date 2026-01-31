@@ -21,8 +21,20 @@ type Campaign = {
   updated_at: string;
 };
 
+type Collaboration = {
+  id: string;
+  campaign_id: string;
+  influencer_id: string;
+  status: string;
+};
+
 type CampaignListResponse = {
   items: Campaign[];
+  next_cursor: string | null;
+};
+
+type CollaborationListResponse = {
+  items: Collaboration[];
   next_cursor: string | null;
 };
 
