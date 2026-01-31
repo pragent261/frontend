@@ -1,12 +1,24 @@
-import { Button, Typography } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { Button, Card, Typography, Dropdown, Spin, Empty, message } from "antd";
+import { PlusOutlined, MoreOutlined, CloudOutlined } from "@ant-design/icons";
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import CreateCampaignModal from "../components/CreateCampaignModal";
+import "../styles.css";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 type Campaign = {
   id: string;
   name: string;
-  status: string;
+  brand_site_url: string | null;
+  taobao_url: string | null;
+  collaboration_mode: string;
+  status: "draft" | "active" | "paused" | "completed";
+  mode: string;
+  config: Record<string, unknown>;
+  version: number;
+  created_at: string;
+  updated_at: string;
 };
 
 type Collaboration = {
@@ -27,153 +39,175 @@ type CollaborationListResponse = {
 };
 
 export default function PlanPage() {
+  const navigate = useNavigate();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
-  );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const loadData = async () => {
-      setStatus("loading");
-      setErrorMessage(null);
-      try {
-        const [campaignRes, collaborationRes] = await Promise.all([
-          fetch("/v1/campaigns", { signal: controller.signal }),
-          fetch("/v1/collaborations", { signal: controller.signal })
-        ]);
-
-        if (!campaignRes.ok || !collaborationRes.ok) {
-          throw new Error("plan_request_failed");
-        }
-
-        const campaignsData =
-          (await campaignRes.json()) as CampaignListResponse;
-        const collaborationsData =
-          (await collaborationRes.json()) as CollaborationListResponse;
-
-        setCampaigns(campaignsData.items ?? []);
-        setCollaborations(collaborationsData.items ?? []);
-        setStatus("success");
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return;
-        }
-        console.error("Failed to load plan data", error);
-        setCampaigns([]);
-        setCollaborations([]);
-        setStatus("error");
-        setErrorMessage("投放计划数据加载失败。");
+  const fetchCampaigns = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/v1/campaigns");
+      if (!response.ok) {
+        throw new Error("加载投放计划失败");
       }
-    };
-
-    loadData();
-
-    return () => {
-      controller.abort();
-    };
+      const data = (await response.json()) as CampaignListResponse;
+      setCampaigns(data.items || []);
+    } catch (err) {
+      console.error("Failed to fetch campaigns:", err);
+      setError("加载投放计划失败，请稍后重试");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const collaborationsByCampaign = useMemo(() => {
-    return collaborations.reduce<Record<string, Collaboration[]>>(
-      (acc, item) => {
-        if (!acc[item.campaign_id]) {
-          acc[item.campaign_id] = [];
-        }
-        acc[item.campaign_id].push(item);
-        return acc;
-      },
-      {}
+  useEffect(() => {
+    fetchCampaigns();
+  }, [fetchCampaigns]);
+
+  const handleCreateSuccess = () => {
+    fetchCampaigns();
+  };
+
+  const getStatusBadge = (status: Campaign["status"]) => {
+    const statusConfig = {
+      draft: { color: "#faad14", text: "Draft" },
+      active: { color: "#52c41a", text: "Active" },
+      paused: { color: "#8c8c8c", text: "Paused" },
+      completed: { color: "#1890ff", text: "Completed" }
+    };
+    const config = statusConfig[status] || statusConfig.draft;
+    return (
+      <span className="campaign-card__status" style={{ borderColor: config.color, color: config.color }}>
+        <span className="campaign-card__status-dot" style={{ backgroundColor: config.color }} />
+        {config.text}
+      </span>
     );
-  }, [collaborations]);
+  };
+
+  const handleDelete = async (campaignId: string) => {
+    try {
+      const response = await fetch(`/v1/campaigns/${campaignId}`, {
+        method: "DELETE"
+      });
+      if (!response.ok) {
+        throw new Error("删除失败");
+      }
+      fetchCampaigns();
+    } catch (err) {
+      console.error("Failed to delete campaign:", err);
+    }
+  };
+
+  const renderCampaignCard = (campaign: Campaign) => (
+    <Card
+      key={campaign.id}
+      className="campaign-card"
+      hoverable
+    >
+      <div className="campaign-card__cover">
+        <CloudOutlined className="campaign-card__cover-icon" />
+      </div>
+      <div className="campaign-card__body">
+        <Text className="campaign-card__title" ellipsis>
+          {campaign.name}
+        </Text>
+        <div className="campaign-card__footer">
+          {getStatusBadge(campaign.status)}
+          <Dropdown
+            menu={{
+              items: [
+                { key: "view", label: "查看详情" },
+                { key: "edit", label: "编辑" },
+                { key: "publish", label: "发布", disabled: campaign.status !== "draft" },
+                { type: "divider" },
+                { key: "delete", label: "删除", danger: true }
+              ],
+              onClick: async ({ key }) => {
+                if (key === "view") {
+                  navigate(`/plan/${campaign.id}`);
+                } else if (key === "edit") {
+                  navigate(`/plan/${campaign.id}`);
+                } else if (key === "publish" && campaign.status === "draft") {
+                  try {
+                    const response = await fetch(`/v1/campaigns/${campaign.id}/publish`, {
+                      method: "POST"
+                    });
+                    if (!response.ok) throw new Error("发布失败");
+                    message.success("投放计划已发布");
+                    fetchCampaigns();
+                  } catch (err) {
+                    console.error("Publish error:", err);
+                    message.error("发布失败，请稍后重试");
+                  }
+                } else if (key === "delete") {
+                  handleDelete(campaign.id);
+                }
+              }
+            }}
+            trigger={["click"]}
+          >
+            <Button
+              type="text"
+              icon={<MoreOutlined />}
+              className="campaign-card__more"
+            />
+          </Dropdown>
+        </div>
+      </div>
+    </Card>
+  );
 
   return (
-    <div className="page-shell">
-      <div className="task-main__toolbar">
-        <div className="task-main__welcome">
-          <Text className="task-main__welcome-text">欢迎回来</Text>
-          <span className="task-main__welcome-emoji">👋</span>
-        </div>
-        <Button className="task-main__cta">创建投放计划</Button>
-      </div>
-      <div className="page-hero">
-        <Typography.Title level={3}>投放计划</Typography.Title>
-        <Typography.Text type="secondary">
-          这里汇总全部投放计划与对应合作信息。
-        </Typography.Text>
+    <div className="plan-page">
+      <div className="plan-page__header">
+        <Title level={3} className="plan-page__title">投放计划列表</Title>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          className="plan-page__create-btn"
+          onClick={() => setShowCreateModal(true)}
+        >
+          创建投放计划
+        </Button>
       </div>
 
-      <div className="campaign-list">
-        {status === "loading" ? (
-          <Text className="todo-card__status">正在加载投放计划...</Text>
-        ) : null}
-        {status === "error" && errorMessage ? (
-          <Text className="todo-card__status todo-card__status--error">
-            {errorMessage}
-          </Text>
-        ) : null}
-        {status === "success" && campaigns.length === 0 ? (
-          <Text className="todo-card__status">暂无投放计划。</Text>
-        ) : null}
-        {campaigns.map((campaign) => {
-          const list = collaborationsByCampaign[campaign.id] ?? [];
-          const isOpen = expandedId === campaign.id;
-          return (
-            <div key={campaign.id} className="campaign-card">
-              <button
-                type="button"
-                className="campaign-card__header"
-                onClick={() =>
-                  setExpandedId(isOpen ? null : campaign.id)
-                }
-              >
-                <div>
-                  <Text className="campaign-card__title">{campaign.name}</Text>
-                  <Text className="campaign-card__meta">
-                    状态：{campaign.status}
-                  </Text>
-                </div>
-                <div className="campaign-card__toggle">
-                  <span>{list.length} 个合作</span>
-                  <span>{isOpen ? "收起" : "展开"}</span>
-                </div>
-              </button>
-              {isOpen ? (
-                <div className="campaign-card__body">
-                  {list.length === 0 ? (
-                    <Text className="todo-card__status">
-                      暂无合作记录。
-                    </Text>
-                  ) : (
-                    list.map((collaboration) => (
-                      <div
-                        key={collaboration.id}
-                        className="campaign-collab"
-                      >
-                        <div>
-                          <Text className="campaign-collab__title">
-                            达人：{collaboration.influencer_id}
-                          </Text>
-                          <Text className="campaign-collab__meta">
-                            合作状态：{collaboration.status}
-                          </Text>
-                        </div>
-                        <span className="campaign-collab__tag">
-                          {collaboration.status}
-                        </span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
+      <div className="plan-page__content">
+        {loading ? (
+          <div className="plan-page__loading">
+            <Spin size="large" />
+          </div>
+        ) : error ? (
+          <div className="plan-page__error">
+            <Text type="danger">{error}</Text>
+            <Button onClick={fetchCampaigns}>重试</Button>
+          </div>
+        ) : campaigns.length === 0 ? (
+          <Empty
+            description="暂无投放计划"
+            className="plan-page__empty"
+          >
+            <Button
+              type="primary"
+              onClick={() => setShowCreateModal(true)}
+            >
+              创建第一个投放计划
+            </Button>
+          </Empty>
+        ) : (
+          <div className="plan-page__grid">
+            {campaigns.map(renderCampaignCard)}
+          </div>
+        )}
       </div>
+
+      <CreateCampaignModal
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   );
 }
