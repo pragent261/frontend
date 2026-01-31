@@ -573,14 +573,6 @@ export default function TaskProgress() {
 
   return (
     <div className="task-main">
-      <div className="task-main__toolbar">
-        <div className="task-main__welcome">
-          <Text className="task-main__welcome-text">欢迎回来</Text>
-          <span className="task-main__welcome-emoji">👋</span>
-        </div>
-        <Button className="task-main__cta">创建投放计划</Button>
-      </div>
-
       <section className="task-main__panel">
         <Text className="todo-card__title">投放代办事项</Text>
         <div className="todo-card__tabs">
