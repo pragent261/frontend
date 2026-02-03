@@ -15,16 +15,15 @@
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.22.1",
         "vite": "^7.3.1",
-        "xlsx": "^0.18.5"
+        "xlsx": "latest"
     },
     "devDependencies": {
-        "@rollup/rollup-darwin-arm64": "^4.57.0",
         "@types/react": "^18.2.43",
         "@types/react-dom": "^18.2.17",
+        "@types/xlsx": "latest",
         "@vitejs/plugin-react": "^4.2.1",
         "typescript": "^5.3.3"
     },
     "optionalDependencies": {
-        "@rollup/rollup-darwin-arm64": "^4.57.0"
     }
 }

@@ -15,15 +15,24 @@ for collaborations, shipping, and script review, plus a campaign planning view.
 - Ant Design 5
 - React Router 6
 
+## Dependency Setup
+1. Install pnpm globally:
+   - `npm install -g pnpm`
+2. First time setup:
+   - `pnpm install`
+3. Never use `npm install` in this project.
+
+Using pnpm prevents Rollup platform lock issues when switching between macOS and Windows.
+
 ## Getting Started
 1. Install dependencies
-   - `npm install`
+   - `pnpm install`
 2. Start the dev server
-   - `npm run dev`
+   - `pnpm run dev`
 3. Build for production
-   - `npm run build`
+   - `pnpm run build`
 4. Preview the production build
-   - `npm run preview`
+   - `pnpm run preview`
 
 ## API Endpoints Used
 - `GET /v1/dashboard/summary`
