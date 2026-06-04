@@ -3,6 +3,7 @@ import { PlusOutlined, MoreOutlined, CloudOutlined } from "@ant-design/icons";
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CreateCampaignModal from "../components/CreateCampaignModal";
+import { apiFetch } from "../lib/api";
 import "../styles.css";
 
 const { Text, Title } = Typography;
@@ -21,20 +22,8 @@ type Campaign = {
   updated_at: string;
 };
 
-type Collaboration = {
-  id: string;
-  campaign_id: string;
-  influencer_id: string;
-  status: string;
-};
-
 type CampaignListResponse = {
   items: Campaign[];
-  next_cursor: string | null;
-};
-
-type CollaborationListResponse = {
-  items: Collaboration[];
   next_cursor: string | null;
 };
 
@@ -49,7 +38,7 @@ export default function PlanPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/v1/campaigns");
+      const response = await apiFetch("/v1/campaigns");
       if (!response.ok) {
         throw new Error("加载投放计划失败");
       }
@@ -89,7 +78,7 @@ export default function PlanPage() {
 
   const handleDelete = async (campaignId: string) => {
     try {
-      const response = await fetch(`/v1/campaigns/${campaignId}`, {
+      const response = await apiFetch(`/v1/campaigns/${campaignId}`, {
         method: "DELETE"
       });
       if (!response.ok) {
@@ -132,7 +121,7 @@ export default function PlanPage() {
                   navigate(`/plan/${campaign.id}`);
                 } else if (key === "publish" && campaign.status === "draft") {
                   try {
-                    const response = await fetch(`/v1/campaigns/${campaign.id}/publish`, {
+                    const response = await apiFetch(`/v1/campaigns/${campaign.id}/publish`, {
                       method: "POST"
                     });
                     if (!response.ok) throw new Error("发布失败");

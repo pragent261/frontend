@@ -13,6 +13,7 @@ import {
   RocketOutlined
 } from "@ant-design/icons";
 import { campaignBanner, sidebarStar, topAvatar } from "../figmaAssets";
+import { apiFetch } from "../lib/api";
 import "../styles.css";
 
 const { Sider, Content } = Layout;
@@ -31,7 +32,7 @@ export default function AppShell() {
 
     const loadSummary = async () => {
       try {
-        const response = await fetch("/v1/dashboard/my-tasks", {
+        const response = await apiFetch("/v1/dashboard/my-tasks", {
           signal: controller.signal
         });
 

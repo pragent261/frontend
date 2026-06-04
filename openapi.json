@@ -777,6 +777,27 @@
           }
         }
       }
+    },
+    "/v1/dashboard/my-tasks": {
+      "get": {
+        "tags": [
+          "dashboard"
+        ],
+        "summary": "Get My Tasks",
+        "operationId": "get_my_tasks_v1_dashboard_my_tasks_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardMyTasks"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1432,6 +1453,29 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "DashboardMyTasks": {
+        "properties": {
+          "collaborations_need_confirm": {
+            "type": "integer",
+            "title": "Collaborations Need Confirm"
+          },
+          "collaborations_need_ship": {
+            "type": "integer",
+            "title": "Collaborations Need Ship"
+          },
+          "collaborations_need_script_review": {
+            "type": "integer",
+            "title": "Collaborations Need Script Review"
+          }
+        },
+        "type": "object",
+        "required": [
+          "collaborations_need_confirm",
+          "collaborations_need_ship",
+          "collaborations_need_script_review"
+        ],
+        "title": "DashboardMyTasks"
       }
     }
   }

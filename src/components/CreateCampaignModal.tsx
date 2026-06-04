@@ -3,6 +3,7 @@ import { CloseOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import { useState, useCallback } from "react";
 import type { UploadFile } from "antd/es/upload/interface";
 import * as XLSX from "xlsx";
+import { apiFetch } from "../lib/api";
 import "../styles.css";
 
 const { Dragger } = Upload;
@@ -137,7 +138,7 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
 
         setSaving(true);
         try {
-            const response = await fetch("/v1/campaigns", {
+            const response = await apiFetch("/v1/campaigns", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -175,7 +176,7 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
         setPublishing(true);
         try {
             // 先保存
-            const createResponse = await fetch("/v1/campaigns", {
+            const createResponse = await apiFetch("/v1/campaigns", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -196,7 +197,7 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
             const campaign = await createResponse.json();
 
             // 再发布
-            const publishResponse = await fetch(`/v1/campaigns/${campaign.id}/publish`, {
+            const publishResponse = await apiFetch(`/v1/campaigns/${campaign.id}/publish`, {
                 method: "POST"
             });
 

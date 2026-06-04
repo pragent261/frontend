@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { Button, Typography, Spin, Descriptions, Tag, message, Card, Tabs, Empty } from "antd";
 import { ArrowLeftOutlined, EditOutlined, SendOutlined } from "@ant-design/icons";
+import { apiFetch } from "../lib/api";
 import "../styles.css";
 
 const { Title } = Typography;
@@ -49,7 +50,7 @@ export default function CampaignDetailPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`/v1/campaigns/${id}`);
+            const response = await apiFetch(`/v1/campaigns/${id}`);
             if (!response.ok) {
                 if (response.status === 404) {
                     throw new Error("投放计划不存在");
@@ -75,7 +76,7 @@ export default function CampaignDetailPage() {
 
         setPublishing(true);
         try {
-            const response = await fetch(`/v1/campaigns/${campaign.id}/publish`, {
+            const response = await apiFetch(`/v1/campaigns/${campaign.id}/publish`, {
                 method: "POST"
             });
             if (!response.ok) {

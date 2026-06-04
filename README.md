@@ -11,7 +11,7 @@ for collaborations, shipping, and script review, plus a campaign planning view.
 
 ## Tech Stack
 - React 18
-- Vite 5
+- Vite 7
 - Ant Design 5
 - React Router 6
 
@@ -27,15 +27,20 @@ Using pnpm prevents Rollup platform lock issues when switching between macOS and
 ## Getting Started
 1. Install dependencies
    - `pnpm install`
-2. Start the dev server
+2. Configure environment variables when you want the frontend to call a separately deployed backend
+   - copy `.env.example` to `.env.local`
+   - set `VITE_API_BASE_URL` to your deployed backend origin, for example `https://your-api.run.app`
+3. Start the dev server
    - `pnpm run dev`
-3. Build for production
+4. Build for production
    - `pnpm run build`
-4. Preview the production build
+5. Preview the production build
    - `pnpm run preview`
+6. Run tests
+   - `pnpm run test`
 
 ## API Endpoints Used
-- `GET /v1/dashboard/summary`
+- `GET /v1/dashboard/my-tasks`
 - `GET /v1/tasks?type=need_confirm`
 - `GET /v1/tasks?type=need_ship`
 - `GET /v1/tasks?type=need_script_review`
@@ -46,5 +51,13 @@ Using pnpm prevents Rollup platform lock issues when switching between macOS and
 - `GET /v1/collaborations`
 
 ## Notes
-- The API base path is assumed to be the same origin as the frontend.
+- If `VITE_API_BASE_URL` is unset, the frontend uses same-origin `/v1/...` requests.
+- If `VITE_API_BASE_URL` is set, the frontend sends API requests to that backend origin.
 - Task data is loaded on demand when switching tabs.
+
+## Deploy To Vercel
+1. Import the repository into Vercel.
+2. Set the build command to `pnpm run build`.
+3. Set the output directory to `dist`.
+4. Add the `VITE_API_BASE_URL` environment variable for Production and Preview.
+5. Deploy.

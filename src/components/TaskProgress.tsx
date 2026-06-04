@@ -1,6 +1,7 @@
 import { Button, Input, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { emptyState, supportAvatar } from "../figmaAssets";
+import { apiFetch } from "../lib/api";
 import "../styles.css";
 
 const { Text } = Typography;
@@ -85,7 +86,7 @@ export default function TaskProgress() {
       setStatus("loading");
       setErrorMessage(null);
       try {
-        const response = await fetch("/v1/dashboard/my-tasks", {
+        const response = await apiFetch("/v1/dashboard/my-tasks", {
           signal: controller.signal
         });
 
@@ -121,7 +122,7 @@ export default function TaskProgress() {
       setConfirmStatus("loading");
       setConfirmError(null);
       try {
-        const response = await fetch("/v1/tasks?type=need_confirm", {
+        const response = await apiFetch("/v1/tasks?type=need_confirm", {
           signal: controller.signal
         });
 
@@ -161,7 +162,7 @@ export default function TaskProgress() {
       setShipStatus("loading");
       setShipError(null);
       try {
-        const response = await fetch("/v1/tasks?type=need_ship", {
+        const response = await apiFetch("/v1/tasks?type=need_ship", {
           signal: controller.signal
         });
 
@@ -201,7 +202,7 @@ export default function TaskProgress() {
       setScriptStatus("loading");
       setScriptError(null);
       try {
-        const response = await fetch("/v1/tasks?type=need_script_review", {
+        const response = await apiFetch("/v1/tasks?type=need_script_review", {
           signal: controller.signal
         });
 
@@ -246,7 +247,7 @@ export default function TaskProgress() {
     setApprovingId(collaborationId);
     setConfirmError(null);
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `/v1/tasks/${collaborationId}/actions/approve-collaboration`,
         {
           method: "POST"
@@ -283,7 +284,7 @@ export default function TaskProgress() {
     setShippingId(collaborationId);
     setShipError(null);
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `/v1/tasks/${collaborationId}/actions/confirm-ship`,
         {
           method: "POST",
@@ -325,7 +326,7 @@ export default function TaskProgress() {
     setApprovingScriptId(collaborationId);
     setScriptError(null);
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `/v1/tasks/${collaborationId}/actions/approve-script`,
         {
           method: "POST"
