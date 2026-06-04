@@ -31,7 +31,7 @@ export default function AppShell() {
 
     const loadSummary = async () => {
       try {
-        const response = await fetch("/v1/dashboard/summary", {
+        const response = await fetch("/v1/dashboard/my-tasks", {
           signal: controller.signal
         });
 

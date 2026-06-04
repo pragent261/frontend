@@ -85,7 +85,7 @@ export default function TaskProgress() {
       setStatus("loading");
       setErrorMessage(null);
       try {
-        const response = await fetch("/v1/dashboard/summary", {
+        const response = await fetch("/v1/dashboard/my-tasks", {
           signal: controller.signal
         });
 
