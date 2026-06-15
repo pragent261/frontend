@@ -83,7 +83,7 @@ export default function AppShell() {
       <Sider width={240} className="app-sider">
         <div className="sidebar__logo">
           <img className="sidebar__logo-icon" src={sidebarStar} alt="" />
-          <span className="sidebar__logo-text">Braintrust</span>
+          <span className="sidebar__logo-text">聚风</span>
         </div>
 
         <nav className="sidebar__nav">

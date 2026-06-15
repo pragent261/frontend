@@ -644,7 +644,6 @@ body {
   border-radius: 18px;
   color: #ffffff;
   font-size: 14px;
-  letter-spacing: 1.2px;
   padding: 12px 0;
   box-shadow: 0 8px 24px rgba(60, 67, 120, 0.25);
 }
@@ -653,6 +652,12 @@ body {
   width: 26px;
   height: 28px;
   border-radius: 10px;
+}
+
+.support-tab span {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 2px;
 }
 
 /* Chat modal styles (component only) */
