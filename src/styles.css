@@ -32,6 +32,12 @@ body {
   padding: 18px 16px;
 }
 
+.app-sider .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .app-content {
   padding: 20px 32px 32px;
   display: flex;

@@ -17,7 +17,7 @@ const collaborationModes = [
         description: "品牌方给博主寄产品，发布笔记后结算，产品给博主"
     },
     {
-        value: "ship_sample",
+        value: "return_sample",
         label: "寄拍",
         icon: "📬",
         description: "品牌方给博主寄产品，发布笔记后结算，产品还给品牌方（邮费一般由品牌方承担）"
@@ -511,10 +511,13 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
             </div>
 
             <div className="create-campaign__field">
+                <label className="create-campaign__label">数据表名称</label>
                 <Input
                     placeholder=""
                     maxLength={64}
-                    suffix={<span className="create-campaign__counter">0/64</span>}
+                    value={formData.dataTableName}
+                    onChange={e => updateFormData("dataTableName", e.target.value)}
+                    suffix={<span className="create-campaign__counter">{formData.dataTableName.length}/64</span>}
                 />
             </div>
 

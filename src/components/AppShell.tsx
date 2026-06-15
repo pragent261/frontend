@@ -122,7 +122,7 @@ export default function AppShell() {
               <Input
                 className="topbar__input"
                 placeholder="请输入关键词..."
-                bordered={false}
+                variant="borderless"
               />
             </div>
 

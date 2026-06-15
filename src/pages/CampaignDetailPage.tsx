@@ -23,7 +23,7 @@ type Campaign = {
 
 const collaborationModeLabels: Record<string, string> = {
     send_sample: "送拍",
-    ship_sample: "寄拍",
+    return_sample: "寄拍",
     exchange: "置换",
     pugongying_reported: "蒲公英报备",
     underwater: "水下/非报备"
