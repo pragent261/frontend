@@ -1,6 +1,7 @@
-import { Badge, Input, Layout } from "antd";
+import { Badge, Dropdown, Input, Layout, message } from "antd";
+import type { MenuProps } from "antd";
 import { useEffect, useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   BellOutlined,
   HistoryOutlined,
@@ -14,6 +15,7 @@ import {
 } from "@ant-design/icons";
 import { campaignBanner, sidebarStar, topAvatar } from "../figmaAssets";
 import { apiFetch } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
 import "../styles.css";
 
 const { Sider, Content } = Layout;
@@ -25,6 +27,8 @@ type DashboardSummary = {
 };
 
 export default function AppShell() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
 
   useEffect(() => {
@@ -63,6 +67,20 @@ export default function AppShell() {
       summary.collaborations_need_ship +
       summary.collaborations_need_script_review
     : 0;
+
+  const profileMenu: MenuProps["items"] = [
+    {
+      key: "logout",
+      label: "退出登录",
+      onClick: () => {
+        logout();
+        message.success("已退出登录");
+        navigate("/login", { replace: true });
+      }
+    }
+  ];
+
+  const profileLabel = user?.display_name || user?.email || "我的账号";
 
   const navItems = [
     { to: "/home", label: "主页", icon: <HomeOutlined /> },
@@ -140,12 +158,14 @@ export default function AppShell() {
               <Badge count={1} size="small" color="#dc3848">
                 <BellOutlined style={{ fontSize: "21px" }} />
               </Badge>
-              <div className="topbar__profile">
-                <div className="topbar__avatar">
-                  <img src={topAvatar} alt="" />
-                </div>
-                <span className="topbar__profile-text">登录/注册</span>
-              </div>
+              <Dropdown menu={{ items: profileMenu }} trigger={["click"]}>
+                <button className="topbar__profile" type="button">
+                  <div className="topbar__avatar">
+                    <img src={topAvatar} alt="" />
+                  </div>
+                  <span className="topbar__profile-text">{profileLabel}</span>
+                </button>
+              </Dropdown>
             </div>
           </header>
           <Outlet />
