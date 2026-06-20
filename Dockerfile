@@ -7,8 +7,10 @@ WORKDIR /app
 # Enable pnpm via corepack (version pinned by package.json "packageManager")
 RUN corepack enable
 
-# Install dependencies first (better layer caching)
-COPY package.json pnpm-lock.yaml .npmrc ./
+# Install dependencies first (better layer caching).
+# pnpm-workspace.yaml carries onlyBuiltDependencies (esbuild) and MUST be present
+# during install, otherwise pnpm 11 fails with ERR_PNPM_IGNORED_BUILDS.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
 # Build the app (VITE_* vars are baked in at build time — see frontend/README.md)
