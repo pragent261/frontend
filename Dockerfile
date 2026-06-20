@@ -1,5 +1,6 @@
 # ---- Build stage ----
-FROM node:20-alpine AS build
+# Node 22+ is required by the pinned pnpm version in package.json ("packageManager")
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
