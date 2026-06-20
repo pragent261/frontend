@@ -8,8 +8,8 @@ WORKDIR /app
 RUN corepack enable
 
 # Install dependencies first (better layer caching).
-# pnpm-workspace.yaml carries onlyBuiltDependencies (esbuild) and MUST be present
-# during install, otherwise pnpm 11 fails with ERR_PNPM_IGNORED_BUILDS.
+# pnpm-workspace.yaml carries allowBuilds (esbuild) and MUST be present during
+# install, otherwise pnpm 11 fails with ERR_PNPM_IGNORED_BUILDS.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
