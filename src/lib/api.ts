@@ -1,5 +1,3 @@
-import { clearAccessToken, getAccessToken } from "./auth";
-
 const ABSOLUTE_URL_PATTERN = /^https?:\/\//i;
 
 export function resolveApiUrl(
@@ -20,28 +18,5 @@ export function resolveApiUrl(
 }
 
 export function apiFetch(input: string, init?: RequestInit): Promise<Response> {
-  const token = getAccessToken();
-  const headers = new Headers(init?.headers);
-
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-
-  return fetch(resolveApiUrl(input), {
-    ...init,
-    headers
-  }).then((response) => {
-    if (
-      response.status === 401 &&
-      !input.includes("/auth/login") &&
-      !input.includes("/auth/register")
-    ) {
-      clearAccessToken();
-      if (window.location.pathname !== "/login") {
-        window.location.assign("/login");
-      }
-    }
-
-    return response;
-  });
+  return fetch(resolveApiUrl(input), init);
 }

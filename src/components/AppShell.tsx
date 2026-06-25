@@ -1,7 +1,6 @@
-import { Badge, Dropdown, Input, Layout, message } from "antd";
-import type { MenuProps } from "antd";
+import { Badge, Input, Layout } from "antd";
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import {
   BellOutlined,
   HistoryOutlined,
@@ -11,11 +10,11 @@ import {
   BookOutlined,
   TeamOutlined,
   UserOutlined,
-  RocketOutlined
+  RocketOutlined,
+  IdcardOutlined
 } from "@ant-design/icons";
 import { campaignBanner, sidebarStar, topAvatar } from "../figmaAssets";
 import { apiFetch } from "../lib/api";
-import { useAuth } from "../context/AuthContext";
 import "../styles.css";
 
 const { Sider, Content } = Layout;
@@ -27,8 +26,6 @@ type DashboardSummary = {
 };
 
 export default function AppShell() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
 
   useEffect(() => {
@@ -68,19 +65,7 @@ export default function AppShell() {
       summary.collaborations_need_script_review
     : 0;
 
-  const profileMenu: MenuProps["items"] = [
-    {
-      key: "logout",
-      label: "退出登录",
-      onClick: () => {
-        logout();
-        message.success("已退出登录");
-        navigate("/login", { replace: true });
-      }
-    }
-  ];
-
-  const profileLabel = user?.display_name || user?.email || "我的账号";
+  const profileLabel = "我的账号";
 
   const navItems = [
     { to: "/home", label: "主页", icon: <HomeOutlined /> },
@@ -93,7 +78,8 @@ export default function AppShell() {
     { to: "/plan", label: "投放计划", icon: <RocketOutlined /> },
     { to: "/talent", label: "寻找达人", icon: <TeamOutlined />, pill: "测试版" },
     { to: "/history", label: "历史邀约", icon: <HistoryOutlined /> },
-    { to: "/review", label: "复盘统计", icon: <BookOutlined /> }
+    { to: "/review", label: "复盘统计", icon: <BookOutlined /> },
+    { to: "/employees", label: "员工面板", icon: <IdcardOutlined /> }
   ];
 
   return (
@@ -158,14 +144,12 @@ export default function AppShell() {
               <Badge count={1} size="small" color="#dc3848">
                 <BellOutlined style={{ fontSize: "21px" }} />
               </Badge>
-              <Dropdown menu={{ items: profileMenu }} trigger={["click"]}>
-                <button className="topbar__profile" type="button">
-                  <div className="topbar__avatar">
-                    <img src={topAvatar} alt="" />
-                  </div>
-                  <span className="topbar__profile-text">{profileLabel}</span>
-                </button>
-              </Dropdown>
+              <button className="topbar__profile" type="button">
+                <div className="topbar__avatar">
+                  <img src={topAvatar} alt="" />
+                </div>
+                <span className="topbar__profile-text">{profileLabel}</span>
+              </button>
             </div>
           </header>
           <Outlet />
