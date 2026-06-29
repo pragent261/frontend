@@ -61,7 +61,8 @@ export default function CampaignDetailPage() {
             setCampaign(data);
         } catch (err) {
             console.error("Failed to fetch campaign:", err);
-            setError(err instanceof Error ? err.message : "加载失败");
+            setCampaign(null);
+            setError(null);
         } finally {
             setLoading(false);
         }
@@ -113,7 +114,7 @@ export default function CampaignDetailPage() {
     if (error || !campaign) {
         return (
             <div className="campaign-detail__error">
-                <Empty description={error || "投放计划不存在"}>
+                <Empty description="暂无数据">
                     <Button onClick={() => navigate("/plan")}>返回列表</Button>
                 </Empty>
             </div>

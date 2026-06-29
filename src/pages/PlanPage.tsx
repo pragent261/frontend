@@ -46,7 +46,8 @@ export default function PlanPage() {
       setCampaigns(data.items || []);
     } catch (err) {
       console.error("Failed to fetch campaigns:", err);
-      setError("加载投放计划失败，请稍后重试");
+      setCampaigns([]);
+      setError(null);
     } finally {
       setLoading(false);
     }
