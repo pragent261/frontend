@@ -1,4 +1,4 @@
-import { Button, Input, Typography, Spin } from "antd";
+import { Button, Input, Typography, Spin, Dropdown } from "antd";
 import { useEffect, useState } from "react";
 import {
   CheckCircleOutlined,
@@ -7,7 +7,10 @@ import {
   ThunderboltFilled,
   UserOutlined,
   InfoCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  MailOutlined,
+  MoreOutlined,
+  DownOutlined
 } from "@ant-design/icons";
 import { supportAvatar } from "../figmaAssets";
 import { apiFetch } from "../lib/api";
@@ -75,6 +78,8 @@ export default function TaskProgress() {
   const [scriptError, setScriptError] = useState<string | null>(null);
   const [approvingScriptId, setApprovingScriptId] = useState<string | null>(null);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [scriptSubTab, setScriptSubTab] = useState<"getting" | "giving">("getting");
+  const [offersFilter, setOffersFilter] = useState<string>("All offers");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -363,54 +368,117 @@ export default function TaskProgress() {
     );
   };
 
-  const renderScriptList = () => {
+  const offerMenuItems = ["All offers", "Pending", "Approved"].map((label) => ({
+    key: label,
+    label
+  }));
+
+  const avatarPalette = ["#1e3a8a", "#0891b2", "#7c3aed", "#be123c", "#15803d", "#b45309"];
+
+  const renderScriptCards = () => {
     if (scriptStatus === "loading") return <div className="tasks-loading"><Spin /></div>;
     if (scriptStatus === "error" && scriptError) return renderError(scriptError);
     if (!scriptTasks || scriptTasks.length === 0) return renderEmpty();
     return (
-      <div className="task-list">
-        {scriptTasks.map((item) => (
-          <div key={item.id} className="task-card">
-            <div className="task-card__stripe task-card__stripe--script" />
-            <div className="task-card__inner">
-              <div className="task-card__top">
-                <div className="task-card__info">
-                  <span className="task-card__campaign">{item.campaign?.name ?? "未命名项目"}</span>
-                  <span className="task-card__influencer">
-                    <UserOutlined style={{ fontSize: 11 }} />
-                    达人：{item.influencer_id}
-                  </span>
+      <div className="sr-card-list">
+        {scriptTasks.map((item, index) => {
+          const displayName = item.influencer_id || "未知达人";
+          const initial = displayName.trim().charAt(0).toUpperCase() || "?";
+          const avatarColor = avatarPalette[index % avatarPalette.length];
+          return (
+            <div key={item.id} className="sr-card">
+              <div className="sr-card__head">
+                <div
+                  className="sr-card__avatar"
+                  style={{ backgroundColor: avatarColor }}
+                >
+                  {initial}
                 </div>
-                <span className="task-card__badge task-card__badge--script">待审核</span>
+                <span className="sr-card__name">{displayName}</span>
+                {item.campaign?.name && (
+                  <span className="sr-card__role">{item.campaign.name}</span>
+                )}
+                <span className="sr-card__time">• 待审核</span>
+                <div className="sr-card__head-right">
+                  <span className="sr-tag sr-tag--pending">Pending</span>
+                  <button className="sr-card__more" type="button" aria-label="更多">
+                    <MoreOutlined />
+                  </button>
+                </div>
               </div>
-              <div className="task-card__meta">
-                <span className="task-card__meta-pill">
-                  <span style={{ color: "#9ca3af", fontSize: 11 }}>合作状态</span>
-                  <span style={{ color: "#374151", fontWeight: 500 }}>{item.collaboration_status}</span>
+
+              <div className="sr-card__pill">
+                <span className="sr-card__pill-check" />
+                <span className="sr-card__pill-label">
+                  {item.campaign?.name ?? "脚本审核"}
                 </span>
+                <span className="sr-card__pill-status">{item.collaboration_status}</span>
               </div>
+
               {item.script_text && (
-                <div className="task-card__script-box">
-                  <span className="task-card__script-label">脚本内容</span>
-                  <span className="task-card__script-text">{item.script_text}</span>
-                </div>
+                <div className="sr-card__script">{item.script_text}</div>
               )}
-              <div className="task-card__actions">
+
+              <div className="sr-card__divider" />
+
+              <div className="sr-card__actions">
+                <button className="sr-btn sr-btn--ghost" type="button">
+                  <MailOutlined />
+                  沟通
+                </button>
                 <Button
-                  type="primary"
+                  className="sr-btn sr-btn--dark"
                   loading={approvingScriptId === item.collaboration_id}
                   onClick={() => handleApproveScript(item.collaboration_id)}
-                  className="task-card__primary-btn"
                 >
-                  <CheckCircleOutlined /> 批准脚本
+                  接受脚本
                 </Button>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
+
+  const renderScriptList = () => (
+    <div className="sr-panel">
+      <div className="sr-panel__head">
+        <div className="sr-subtabs">
+          <button
+            type="button"
+            className={`sr-subtab${scriptSubTab === "getting" ? " sr-subtab--active" : ""}`}
+            onClick={() => setScriptSubTab("getting")}
+          >
+            Getting help
+          </button>
+          <button
+            type="button"
+            className={`sr-subtab${scriptSubTab === "giving" ? " sr-subtab--active" : ""}`}
+            onClick={() => setScriptSubTab("giving")}
+          >
+            Giving help
+          </button>
+        </div>
+        <Dropdown
+          trigger={["click"]}
+          menu={{
+            items: offerMenuItems,
+            selectable: true,
+            selectedKeys: [offersFilter],
+            onClick: ({ key }) => setOffersFilter(key)
+          }}
+        >
+          <button className="sr-offers-btn" type="button">
+            {offersFilter}
+            <DownOutlined className="sr-offers-btn__caret" />
+          </button>
+        </Dropdown>
+      </div>
+
+      {renderScriptCards()}
+    </div>
+  );
 
   const tabs = [
     { key: "need_confirm" as TaskTab, label: "确认合作", count: confirmCount, icon: <CheckCircleOutlined /> },
