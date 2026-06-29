@@ -207,7 +207,8 @@ body {
   border-radius: 20px;
   border: 1px solid #f0f0f0;
   padding: 32px;
-  min-height: calc(100vh - 140px);
+  height: calc(100vh - 167px);
+  overflow: hidden;
 }
 
 .page-hero {
