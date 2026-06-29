@@ -1,19 +1,22 @@
-import { Badge, Input, Layout } from "antd";
+import { Input, Layout } from "antd";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import {
-  BellOutlined,
-  HistoryOutlined,
-  HomeOutlined,
-  MailOutlined,
-  SearchOutlined,
-  BookOutlined,
-  TeamOutlined,
-  UserOutlined,
-  RocketOutlined,
-  IdcardOutlined
-} from "@ant-design/icons";
-import { campaignBanner, sidebarStar, topAvatar } from "../figmaAssets";
+  Bell,
+  Bookmark,
+  Briefcase,
+  CircleUser,
+  House,
+  Mail,
+  Search,
+  Settings,
+  Sparkles,
+  Users,
+  Wallet
+} from "lucide-react";
+import promoCoins from "../assets/promo-coins.png";
+import pointsStar from "../assets/points-star.png";
+import topAvatar from "../assets/top-avatar.png";
 import { apiFetch } from "../lib/api";
 import "../styles.css";
 
@@ -65,28 +68,24 @@ export default function AppShell() {
       summary.collaborations_need_script_review
     : 0;
 
-  const profileLabel = "我的账号";
-
   const navItems = [
-    { to: "/home", label: "主页", icon: <HomeOutlined /> },
+    { to: "/home", label: "主页", icon: <House /> },
     {
       to: "/tasks",
       label: "我的任务",
-      icon: <UserOutlined />,
-      badge: taskBadgeCount > 0 ? String(taskBadgeCount) : ""
+      icon: <CircleUser />,
+      badge: taskBadgeCount
     },
-    { to: "/plan", label: "投放计划", icon: <RocketOutlined /> },
-    { to: "/talent", label: "寻找达人", icon: <TeamOutlined />, pill: "测试版" },
-    { to: "/history", label: "历史邀约", icon: <HistoryOutlined /> },
-    { to: "/review", label: "复盘统计", icon: <BookOutlined /> },
-    { to: "/employees", label: "员工面板", icon: <IdcardOutlined /> }
+    { to: "/talent", label: "寻找达人", icon: <Briefcase />, pill: "测试版" },
+    { to: "/history", label: "历史邀约", icon: <Users /> },
+    { to: "/review", label: "复盘统计", icon: <Wallet /> }
   ];
 
   return (
     <Layout className="app-shell">
-      <Sider width={240} className="app-sider">
+      <Sider width={231} className="app-sider">
         <div className="sidebar__logo">
-          <img className="sidebar__logo-icon" src={sidebarStar} alt="" />
+          <Sparkles className="sidebar__logo-icon" strokeWidth={2} />
           <span className="sidebar__logo-text">聚风</span>
         </div>
 
@@ -101,16 +100,21 @@ export default function AppShell() {
             >
               {item.icon}
               <span>{item.label}</span>
-              {item.badge ? (
-                <span className="sidebar__badge">{item.badge}</span>
+              {item.badge !== undefined ? (
+                <span className="sidebar__badge">
+                  <Settings />
+                  {item.badge}
+                </span>
               ) : null}
-              {item.pill ? <span className="sidebar__pill">{item.pill}</span> : null}
+              {item.pill ? (
+                <span className="sidebar__pill">{item.pill}</span>
+              ) : null}
             </NavLink>
           ))}
         </nav>
 
         <div className="sidebar__points">
-          <div className="sidebar__points-icon" />
+          <img className="sidebar__points-icon" src={pointsStar} alt="" />
           <div className="sidebar__points-text">你拥有 无限 个积分</div>
           <button className="sidebar__points-btn" type="button">
             添加积分
@@ -122,7 +126,7 @@ export default function AppShell() {
         <Content className="app-content">
           <header className="topbar">
             <div className="topbar__search">
-              <SearchOutlined />
+              <Search />
               <Input
                 className="topbar__input"
                 placeholder="请输入关键词..."
@@ -131,24 +135,26 @@ export default function AppShell() {
             </div>
 
             <div className="topbar__banner">
-              <img className="topbar__banner-icon" src={campaignBanner} alt="" />
+              <img className="topbar__banner-icon" src={promoCoins} alt="" />
               <span className="topbar__banner-text">
                 现在充值即可获得额外积分奖励
               </span>
-              <div className="topbar__banner-btn">立即存入资金</div>
+              <button className="topbar__banner-btn" type="button">
+                立即存入资金
+              </button>
             </div>
 
             <div className="topbar__actions">
-              <MailOutlined />
-              <BookOutlined className="topbar__bookmark" />
-              <Badge count={1} size="small" color="#dc3848">
-                <BellOutlined style={{ fontSize: "21px" }} />
-              </Badge>
+              <Mail />
+              <Bookmark />
+              <span className="topbar__bell">
+                <Bell />
+                <span className="topbar__bell-dot">1</span>
+              </span>
               <button className="topbar__profile" type="button">
                 <div className="topbar__avatar">
                   <img src={topAvatar} alt="" />
                 </div>
-                <span className="topbar__profile-text">{profileLabel}</span>
               </button>
             </div>
           </header>
