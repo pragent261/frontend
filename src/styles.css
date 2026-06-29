@@ -2380,7 +2380,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 34px;
+  margin-top: 24px;
   position: relative;
 }
 
@@ -2418,7 +2418,7 @@ body {
 }
 
 .todo-card__hint {
-  margin-top: 22px;
+  margin-top: 16px;
   background: var(--surface);
   border: 1px solid var(--border-hint);
   border-radius: 16px;
@@ -2447,15 +2447,15 @@ body {
 }
 
 .todo-empty__img {
-  width: 190px;
-  height: 190px;
+  width: 128px;
+  height: 128px;
   object-fit: contain;
 }
 
 .todo-empty__text {
-  margin-top: 34px;
+  margin-top: 16px;
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   color: var(--text-muted);
 }
