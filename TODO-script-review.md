@@ -1,7 +1,8 @@
-# 脚本审核（Figma 83:3891）还原 · 待办 & 字段缺口
+# 我的任务（Figma 83:3891）还原 · 待办 & 字段缺口
 
-> 对应改动：[src/components/TaskProgress.tsx](src/components/TaskProgress.tsx) 的 `renderScriptList()` + [src/styles.css](src/styles.css) 的 `sr-*` 样式。
-> 范围：只重做「我的任务 → 脚本审核」标签内容区；卡片绑定真实数据 `/v1/tasks?type=need_script_review`，`接受脚本` = `approve-script`。
+> 对应改动：[src/components/TaskProgress.tsx](src/components/TaskProgress.tsx)（整页改为 sr-toptabs + 灰色面板 + sr-card）+ [src/styles.css](src/styles.css) 的 `sr-*` 样式。
+> 范围：整个「我的任务」页照 Figma —— 去掉旧的标题/统计卡/提示条，三个标签（确认合作 / 产品寄送 / 脚本审核）共用同一套卡片样式，各自保留操作按钮，均绑定真实数据。
+> 数据库：已通过 Supabase 种入 demo 数据（campaign `Portfolio + Resume Help` + 6 条 collaboration + 2 条 pending 脚本）；并新增可复现迁移 [pragent-api-backend/migrations/versions/b2f4a6c8d0e1_seed_demo_tasks.py](../pragent-api-backend/migrations/versions/b2f4a6c8d0e1_seed_demo_tasks.py)（幂等，可 downgrade 删除）。
 
 ---
 

@@ -2470,6 +2470,42 @@ body {
 /* ============================================================
    脚本审核（Figma 83:3891）— Braintrust 风格内容区
    ============================================================ */
+
+/* 顶部文字标签（确认合作 / 产品寄送 / 脚本审核） */
+.sr-toptabs {
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid #e5e7eb;
+  margin: 8px 0 24px;
+}
+
+.sr-toptab {
+  position: relative;
+  background: none;
+  border: 0;
+  padding: 0 0 12px;
+  font-family: "Inter", var(--font-display);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #565d6d;
+  cursor: pointer;
+}
+
+.sr-toptab--active {
+  color: #171a1f;
+}
+
+.sr-toptab--active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: #171a1f;
+}
+
 .sr-panel {
   background: #fafafa;
   border: 1px solid #f7f7f7;
@@ -2731,4 +2767,20 @@ body {
   background: #1a1a1a;
   border-color: #1a1a1a;
   color: #ffffff;
+}
+
+/* 产品寄送卡片：快递单号输入行 */
+.sr-card__ship-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 17px;
+}
+
+.sr-card__ship-input {
+  flex: 1;
+}
+
+.sr-card__ship-row .sr-btn--dark {
+  flex: none;
 }

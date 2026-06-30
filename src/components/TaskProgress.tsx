@@ -4,9 +4,6 @@ import {
   CheckCircleOutlined,
   SendOutlined,
   FileTextOutlined,
-  ThunderboltFilled,
-  UserOutlined,
-  InfoCircleOutlined,
   CloseCircleOutlined,
   MailOutlined,
   MoreOutlined,
@@ -61,8 +58,6 @@ type TaskTab = "need_confirm" | "need_ship" | "need_script_review";
 
 export default function TaskProgress() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TaskTab>("need_confirm");
   const [confirmTasks, setConfirmTasks] = useState<TaskItem[] | null>(null);
   const [confirmStatus, setConfirmStatus] = useState<"loading" | "success" | "error">("loading");
@@ -84,19 +79,14 @@ export default function TaskProgress() {
   useEffect(() => {
     const controller = new AbortController();
     const loadSummary = async () => {
-      setStatus("loading");
-      setErrorMessage(null);
       try {
         const response = await apiFetch("/v1/dashboard/my-tasks", { signal: controller.signal });
         if (!response.ok) throw new Error("summary_request_failed");
         const data = (await response.json()) as DashboardSummary;
         setSummary(data);
-        setStatus("success");
       } catch (error) {
         if (controller.signal.aborted) return;
         setSummary(null);
-        setStatus("success");
-        setErrorMessage(null);
       }
     };
     loadSummary();
@@ -175,7 +165,6 @@ export default function TaskProgress() {
   const confirmCount = confirmTasks !== null ? confirmTasks.length : data.collaborations_need_confirm;
   const shipCount = shipTasks !== null ? shipTasks.length : data.collaborations_need_ship;
   const scriptCount = scriptTasks !== null ? scriptTasks.length : data.collaborations_need_script_review;
-  const totalCount = confirmCount + shipCount + scriptCount;
 
   const handleApprove = async (collaborationId: string) => {
     setApprovingId(collaborationId);
@@ -245,45 +234,61 @@ export default function TaskProgress() {
     </div>
   );
 
-  const renderConfirmList = () => {
+  const renderCardHead = (item: TaskItem, index: number, timeLabel: string) => {
+    const displayName = item.influencer_id || "未知达人";
+    const initial = displayName.trim().charAt(0).toUpperCase() || "?";
+    const avatarColor = avatarPalette[index % avatarPalette.length];
+    return (
+      <div className="sr-card__head">
+        <div className="sr-card__avatar" style={{ backgroundColor: avatarColor }}>
+          {initial}
+        </div>
+        <span className="sr-card__name">{displayName}</span>
+        <span className="sr-card__time">• {timeLabel}</span>
+        <div className="sr-card__head-right">
+          <span className="sr-tag sr-tag--pending">Pending</span>
+          <button className="sr-card__more" type="button" aria-label="更多">
+            <MoreOutlined />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderCardPill = (label: string, status: string) => (
+    <div className="sr-card__pill">
+      <span className="sr-card__pill-check" />
+      <span className="sr-card__pill-label">{label}</span>
+      <span className="sr-card__pill-status">{status}</span>
+    </div>
+  );
+
+  const renderConfirmCards = () => {
     if (confirmStatus === "loading") return <div className="tasks-loading"><Spin /></div>;
     if (confirmStatus === "error" && confirmError) return renderError(confirmError);
     if (!confirmTasks || confirmTasks.length === 0) return renderEmpty();
     return (
-      <div className="task-list">
-        {confirmTasks.map((item) => (
-          <div key={item.id} className="task-card">
-            <div className="task-card__stripe" />
-            <div className="task-card__inner">
-              <div className="task-card__top">
-                <div className="task-card__info">
-                  <span className="task-card__campaign">{item.campaign?.name ?? "未命名项目"}</span>
-                  <span className="task-card__influencer">
-                    <UserOutlined style={{ fontSize: 11 }} />
-                    达人：{item.influencer_id}
-                  </span>
-                </div>
-                <span className="task-card__badge task-card__badge--confirm">待确认</span>
-              </div>
-              <div className="task-card__meta">
-                <span className="task-card__meta-pill">
-                  <span style={{ color: "#9ca3af", fontSize: 11 }}>活动状态</span>
-                  <span style={{ color: "#374151", fontWeight: 500 }}>{item.campaign?.status ?? "未知"}</span>
-                </span>
-              </div>
-              <div className="task-card__actions">
-                <Button onClick={() => handleApprove(item.collaboration_id)} style={{ color: "#6b7280" }}>
-                  拒绝合作
-                </Button>
-                <Button
-                  type="primary"
-                  loading={approvingId === item.collaboration_id}
-                  onClick={() => handleApprove(item.collaboration_id)}
-                  className="task-card__primary-btn"
-                >
-                  <CheckCircleOutlined /> 确认合作
-                </Button>
-              </div>
+      <div className="sr-card-list">
+        {confirmTasks.map((item, index) => (
+          <div key={item.id} className="sr-card">
+            {renderCardHead(item, index, "待确认")}
+            {renderCardPill(item.campaign?.name ?? "合作申请", item.campaign?.status ?? "未知")}
+            <div className="sr-card__divider" />
+            <div className="sr-card__actions">
+              <button
+                className="sr-btn sr-btn--ghost"
+                type="button"
+                onClick={() => handleApprove(item.collaboration_id)}
+              >
+                拒绝合作
+              </button>
+              <Button
+                className="sr-btn sr-btn--dark"
+                loading={approvingId === item.collaboration_id}
+                onClick={() => handleApprove(item.collaboration_id)}
+              >
+                确认合作
+              </Button>
             </div>
           </div>
         ))}
@@ -291,76 +296,55 @@ export default function TaskProgress() {
     );
   };
 
-  const renderShipList = () => {
+  const renderShipCards = () => {
     if (shipStatus === "loading") return <div className="tasks-loading"><Spin /></div>;
     if (shipStatus === "error" && shipError) return renderError(shipError);
     if (!shipTasks || shipTasks.length === 0) return renderEmpty();
     return (
-      <div className="task-list">
-        {shipTasks.map((item) => (
-          <div key={item.id} className="task-card">
-            <div className="task-card__stripe task-card__stripe--ship" />
-            <div className="task-card__inner">
-              <div className="task-card__top">
-                <div className="task-card__info">
-                  <span className="task-card__campaign">{item.campaign?.name ?? "未命名项目"}</span>
-                  <span className="task-card__influencer">
-                    <UserOutlined style={{ fontSize: 11 }} />
-                    达人：{item.influencer_id}
-                  </span>
-                </div>
-                <span className="task-card__badge task-card__badge--ship">待寄送</span>
+      <div className="sr-card-list">
+        {shipTasks.map((item, index) => (
+          <div key={item.id} className="sr-card">
+            {renderCardHead(item, index, "待寄送")}
+            {renderCardPill(item.campaign?.name ?? "产品寄送", item.collaboration_status)}
+            <div className="sr-card__divider" />
+            <div className="sr-card__ship-row">
+              <div className="sr-card__ship-input">
+                <Input
+                  placeholder="填写快递单号"
+                  value={shipTracking[item.collaboration_id] ?? ""}
+                  status={shipValidation[item.collaboration_id] ? "error" : undefined}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setShipTracking((prev) => ({ ...prev, [item.collaboration_id]: value }));
+                    if (value.trim()) {
+                      setShipValidation((prev) => {
+                        if (!prev[item.collaboration_id]) return prev;
+                        const next = { ...prev };
+                        delete next[item.collaboration_id];
+                        return next;
+                      });
+                    }
+                  }}
+                  onBlur={() => {
+                    const value = shipTracking[item.collaboration_id]?.trim();
+                    if (!value) {
+                      setShipValidation((prev) => ({ ...prev, [item.collaboration_id]: "快递单号不能为空" }));
+                    } else {
+                      setShipValidation((prev) => { const n = { ...prev }; delete n[item.collaboration_id]; return n; });
+                    }
+                  }}
+                />
+                {shipValidation[item.collaboration_id] && (
+                  <Text className="task-card__error">{shipValidation[item.collaboration_id]}</Text>
+                )}
               </div>
-              <div className="task-card__meta">
-                <span className="task-card__meta-pill">
-                  <span style={{ color: "#9ca3af", fontSize: 11 }}>合作状态</span>
-                  <span style={{ color: "#374151", fontWeight: 500 }}>{item.collaboration_status}</span>
-                </span>
-                <span className="task-card__meta-pill">
-                  <span style={{ color: "#9ca3af", fontSize: 11 }}>活动状态</span>
-                  <span style={{ color: "#374151", fontWeight: 500 }}>{item.campaign?.status ?? "未知"}</span>
-                </span>
-              </div>
-              <div className="task-card__ship-row">
-                <div style={{ flex: 1 }}>
-                  <Input
-                    placeholder="填写快递单号"
-                    value={shipTracking[item.collaboration_id] ?? ""}
-                    status={shipValidation[item.collaboration_id] ? "error" : undefined}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setShipTracking((prev) => ({ ...prev, [item.collaboration_id]: value }));
-                      if (value.trim()) {
-                        setShipValidation((prev) => {
-                          if (!prev[item.collaboration_id]) return prev;
-                          const next = { ...prev };
-                          delete next[item.collaboration_id];
-                          return next;
-                        });
-                      }
-                    }}
-                    onBlur={() => {
-                      const value = shipTracking[item.collaboration_id]?.trim();
-                      if (!value) {
-                        setShipValidation((prev) => ({ ...prev, [item.collaboration_id]: "快递单号不能为空" }));
-                      } else {
-                        setShipValidation((prev) => { const n = { ...prev }; delete n[item.collaboration_id]; return n; });
-                      }
-                    }}
-                  />
-                  {shipValidation[item.collaboration_id] && (
-                    <Text className="task-card__error">{shipValidation[item.collaboration_id]}</Text>
-                  )}
-                </div>
-                <Button
-                  type="primary"
-                  loading={shippingId === item.collaboration_id}
-                  onClick={() => handleShipConfirm(item.collaboration_id)}
-                  className="task-card__primary-btn"
-                >
-                  <SendOutlined /> 确认发货
-                </Button>
-              </div>
+              <Button
+                className="sr-btn sr-btn--dark"
+                loading={shippingId === item.collaboration_id}
+                onClick={() => handleShipConfirm(item.collaboration_id)}
+              >
+                确认发货
+              </Button>
             </div>
           </div>
         ))}
@@ -381,104 +365,38 @@ export default function TaskProgress() {
     if (!scriptTasks || scriptTasks.length === 0) return renderEmpty();
     return (
       <div className="sr-card-list">
-        {scriptTasks.map((item, index) => {
-          const displayName = item.influencer_id || "未知达人";
-          const initial = displayName.trim().charAt(0).toUpperCase() || "?";
-          const avatarColor = avatarPalette[index % avatarPalette.length];
-          return (
-            <div key={item.id} className="sr-card">
-              <div className="sr-card__head">
-                <div
-                  className="sr-card__avatar"
-                  style={{ backgroundColor: avatarColor }}
-                >
-                  {initial}
-                </div>
-                <span className="sr-card__name">{displayName}</span>
-                {item.campaign?.name && (
-                  <span className="sr-card__role">{item.campaign.name}</span>
-                )}
-                <span className="sr-card__time">• 待审核</span>
-                <div className="sr-card__head-right">
-                  <span className="sr-tag sr-tag--pending">Pending</span>
-                  <button className="sr-card__more" type="button" aria-label="更多">
-                    <MoreOutlined />
-                  </button>
-                </div>
-              </div>
-
-              <div className="sr-card__pill">
-                <span className="sr-card__pill-check" />
-                <span className="sr-card__pill-label">
-                  {item.campaign?.name ?? "脚本审核"}
-                </span>
-                <span className="sr-card__pill-status">{item.collaboration_status}</span>
-              </div>
-
-              {item.script_text && (
-                <div className="sr-card__script">{item.script_text}</div>
-              )}
-
-              <div className="sr-card__divider" />
-
-              <div className="sr-card__actions">
-                <button className="sr-btn sr-btn--ghost" type="button">
-                  <MailOutlined />
-                  沟通
-                </button>
-                <Button
-                  className="sr-btn sr-btn--dark"
-                  loading={approvingScriptId === item.collaboration_id}
-                  onClick={() => handleApproveScript(item.collaboration_id)}
-                >
-                  接受脚本
-                </Button>
-              </div>
+        {scriptTasks.map((item, index) => (
+          <div key={item.id} className="sr-card">
+            {renderCardHead(item, index, "待审核")}
+            {renderCardPill(item.campaign?.name ?? "脚本审核", item.collaboration_status)}
+            {item.script_text && (
+              <div className="sr-card__script">{item.script_text}</div>
+            )}
+            <div className="sr-card__divider" />
+            <div className="sr-card__actions">
+              <button className="sr-btn sr-btn--ghost" type="button">
+                <MailOutlined />
+                沟通
+              </button>
+              <Button
+                className="sr-btn sr-btn--dark"
+                loading={approvingScriptId === item.collaboration_id}
+                onClick={() => handleApproveScript(item.collaboration_id)}
+              >
+                接受脚本
+              </Button>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     );
   };
 
-  const renderScriptList = () => (
-    <div className="sr-panel">
-      <div className="sr-panel__head">
-        <div className="sr-subtabs">
-          <button
-            type="button"
-            className={`sr-subtab${scriptSubTab === "getting" ? " sr-subtab--active" : ""}`}
-            onClick={() => setScriptSubTab("getting")}
-          >
-            Getting help
-          </button>
-          <button
-            type="button"
-            className={`sr-subtab${scriptSubTab === "giving" ? " sr-subtab--active" : ""}`}
-            onClick={() => setScriptSubTab("giving")}
-          >
-            Giving help
-          </button>
-        </div>
-        <Dropdown
-          trigger={["click"]}
-          menu={{
-            items: offerMenuItems,
-            selectable: true,
-            selectedKeys: [offersFilter],
-            onClick: ({ key }) => setOffersFilter(key)
-          }}
-        >
-          <button className="sr-offers-btn" type="button">
-            {offersFilter}
-            <DownOutlined className="sr-offers-btn__caret" />
-          </button>
-        </Dropdown>
-      </div>
-
-      {renderScriptCards()}
-    </div>
-  );
+  const renderActiveCards = () => {
+    if (activeTab === "need_confirm") return renderConfirmCards();
+    if (activeTab === "need_ship") return renderShipCards();
+    return renderScriptCards();
+  };
 
   const tabs = [
     { key: "need_confirm" as TaskTab, label: "确认合作", count: confirmCount, icon: <CheckCircleOutlined /> },
@@ -488,82 +406,56 @@ export default function TaskProgress() {
 
   return (
     <div className="tasks-page">
-      {/* Header */}
-      <div className="tasks-header">
-        <div className="tasks-header__left">
-          <h2 className="tasks-header__title">投放待办事项</h2>
-          <div className="tasks-header__subtitle">
-            <span className="tasks-header__ai-badge">
-              <ThunderboltFilled style={{ fontSize: 10 }} />
-              AI 智能体
-            </span>
-            你的 24/7 网红营销 AI 助理正在运行
-          </div>
-        </div>
-        {status === "loading" ? (
-          <Spin />
-        ) : (
-          <div className="tasks-header__total">
-            <div className="tasks-header__total-num">{totalCount}</div>
-            <div className="tasks-header__total-label">待处理任务</div>
-          </div>
-        )}
-      </div>
-
-      {/* Stat cards — also act as tab switchers */}
-      <div className="tasks-stats">
+      {/* Top text tabs (Figma) */}
+      <div className="sr-toptabs">
         {tabs.map((tab) => (
-          <div
+          <button
             key={tab.key}
-            className={`tasks-stat-card${activeTab === tab.key ? " tasks-stat-card--active" : ""}`}
+            type="button"
+            className={`sr-toptab${activeTab === tab.key ? " sr-toptab--active" : ""}`}
             onClick={() => setActiveTab(tab.key)}
           >
-            <div className="tasks-stat-icon">{tab.icon}</div>
-            <div className="tasks-stat-body">
-              <div className="tasks-stat-count">{tab.count}</div>
-              <span className="tasks-stat-label">{tab.label}</span>
-            </div>
-          </div>
+            {tab.label}
+          </button>
         ))}
       </div>
 
-      {/* Main panel */}
-      <div className="tasks-panel">
-        {/* Tab bar */}
-        <div className="tasks-panel__tabs">
-          {tabs.map((tab) => (
+      {/* Gray panel */}
+      <div className="sr-panel">
+        <div className="sr-panel__head">
+          <div className="sr-subtabs">
             <button
-              key={tab.key}
               type="button"
-              className={`tasks-panel__tab${activeTab === tab.key ? " tasks-panel__tab--active" : ""}`}
-              onClick={() => setActiveTab(tab.key)}
+              className={`sr-subtab${scriptSubTab === "getting" ? " sr-subtab--active" : ""}`}
+              onClick={() => setScriptSubTab("getting")}
             >
-              {tab.icon}
-              {tab.label}
-              <span className="tasks-panel__tab-count">{tab.count}</span>
+              Getting help
             </button>
-          ))}
+            <button
+              type="button"
+              className={`sr-subtab${scriptSubTab === "giving" ? " sr-subtab--active" : ""}`}
+              onClick={() => setScriptSubTab("giving")}
+            >
+              Giving help
+            </button>
+          </div>
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: offerMenuItems,
+              selectable: true,
+              selectedKeys: [offersFilter],
+              onClick: ({ key }) => setOffersFilter(key)
+            }}
+          >
+            <button className="sr-offers-btn" type="button">
+              {offersFilter}
+              <DownOutlined className="sr-offers-btn__caret" />
+            </button>
+          </Dropdown>
         </div>
 
-        {/* Hint strip */}
-        <div className="tasks-panel__hint">
-          <span className="tasks-panel__hint-dot" />
-          <InfoCircleOutlined style={{ fontSize: 12, color: "#fb6011" }} />
-          尽快审核合作申请可以确保网红的档期，并提高合作成功率；如果反馈太慢，网红更容易失联。
-        </div>
-
-        {/* Content */}
-        <div className="tasks-panel__body">
-          {status === "error" && errorMessage && (
-            <div className="tasks-panel__note">
-              <InfoCircleOutlined className="tasks-panel__note-icon" style={{ color: "#f59e0b" }} />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-          {activeTab === "need_confirm" && renderConfirmList()}
-          {activeTab === "need_ship" && renderShipList()}
-          {activeTab === "need_script_review" && renderScriptList()}
-        </div>
+        {renderActiveCards()}
       </div>
 
       {/* Support tab */}
