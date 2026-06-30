@@ -65,10 +65,10 @@ body {
 }
 
 .app-content {
-  padding: 20px 32px 32px;
+  padding: 8px 32px 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
 /* Sidebar */
@@ -322,8 +322,8 @@ body {
   display: flex;
   align-items: center;
   gap: 22px;
-  padding: 16px 16px 0;
-  height: 99px;
+  padding: 0 16px;
+  height: 66px;
   width: 75%;
 }
 
