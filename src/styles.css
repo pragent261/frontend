@@ -324,6 +324,7 @@ body {
   gap: 22px;
   padding: 16px 16px 0;
   height: 99px;
+  width: 75%;
 }
 
 .topbar__search {
