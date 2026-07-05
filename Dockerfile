@@ -14,7 +14,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
 # Build the app (VITE_* vars are baked in at build time — see frontend/README.md)
-ARG VITE_API_BASE_URL=https://dashboard-backend-tl4erlvygq-as.a.run.app
+ARG VITE_API_BASE_URL=https://api-backend-tl4erlvygq-as.a.run.app
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 COPY . .
