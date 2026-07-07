@@ -1,5 +1,7 @@
 import { Button, Modal, Steps, Input, Upload, Table, Select, message } from "antd";
 import { CloseOutlined, CloudUploadOutlined } from "@ant-design/icons";
+import { BookOpen, Table as TableIcon, Image as ImageIcon, HelpCircle, ChevronLeft } from "lucide-react";
+import type { ReactNode } from "react";
 import { useState, useCallback } from "react";
 import type { UploadFile } from "antd/es/upload/interface";
 import * as XLSX from "xlsx";
@@ -9,38 +11,38 @@ import "../styles.css";
 const { Dragger } = Upload;
 
 // 合作模式选项
-const collaborationModes = [
+const collaborationModes: { value: string; label: string; icon: ReactNode; description: string }[] = [
     {
         value: "send_sample",
         label: "送拍",
-        icon: "📦",
+        icon: <BookOpen />,
         description: "品牌方给博主寄产品，发布笔记后结算，产品给博主"
     },
     {
         value: "return_sample",
         label: "寄拍",
-        icon: "📬",
+        icon: <TableIcon />,
         description: "品牌方给博主寄产品，发布笔记后结算，产品还给品牌方（邮费一般由品牌方承担）"
     },
     {
         value: "exchange",
         label: "置换",
-        icon: "🔄",
+        icon: <ImageIcon />,
         description: "无费，品牌方送产品，博主发笔记"
     }
 ];
 
-const pugongyingModes = [
+const pugongyingModes: { value: string; label: string; icon: ReactNode; description: string }[] = [
     {
         value: "pugongying_reported",
         label: "蒲公英报备",
-        icon: "📦",
+        icon: <BookOpen />,
         description: "品牌方给博主寄产品，发布笔记后结算，产品给博主"
     },
     {
         value: "underwater",
         label: "水下/非报备",
-        icon: "📬",
+        icon: <TableIcon />,
         description: "品牌方给博主寄产品，发布笔记后结算，产品还给品牌方（邮费一般由品牌方承担）"
     }
 ];
@@ -286,12 +288,10 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                                 }`}
                             onClick={() => updateFormData("collaborationMode", mode.value)}
                         >
+                            <span className="create-campaign__mode-radio" aria-hidden />
                             <div className="create-campaign__mode-icon">{mode.icon}</div>
                             <div className="create-campaign__mode-label">{mode.label}</div>
                             <div className="create-campaign__mode-desc">{mode.description}</div>
-                            {formData.collaborationMode === mode.value && (
-                                <div className="create-campaign__mode-check">✓</div>
-                            )}
                         </div>
                     ))}
                 </div>
@@ -308,12 +308,10 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                                     }`}
                                 onClick={() => updateFormData("collaborationMode", mode.value)}
                             >
+                                <span className="create-campaign__mode-radio" aria-hidden />
                                 <div className="create-campaign__mode-icon">{mode.icon}</div>
                                 <div className="create-campaign__mode-label">{mode.label}</div>
                                 <div className="create-campaign__mode-desc">{mode.description}</div>
-                                {formData.collaborationMode === mode.value && (
-                                    <div className="create-campaign__mode-check">✓</div>
-                                )}
                             </div>
                         ))}
                     </div>
@@ -374,11 +372,9 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                                 }`}
                             onClick={() => updateFormData("dataSource", option.value)}
                         >
+                            <span className="create-campaign__source-radio" aria-hidden />
                             <div className="create-campaign__source-label">{option.label}</div>
                             <div className="create-campaign__source-desc">{option.description}</div>
-                            {formData.dataSource === option.value && (
-                                <div className="create-campaign__source-check">●</div>
-                            )}
                         </div>
                     ))}
                 </div>
@@ -500,11 +496,9 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                                 }`}
                             onClick={() => updateFormData("contentDataSource", option.value)}
                         >
+                            <span className="create-campaign__source-radio" aria-hidden />
                             <div className="create-campaign__source-label">{option.label}</div>
                             <div className="create-campaign__source-desc">{option.description}</div>
-                            {formData.contentDataSource === option.value && (
-                                <div className="create-campaign__source-check">●</div>
-                            )}
                         </div>
                     ))}
                 </div>
@@ -614,7 +608,8 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
         <Modal
             open={open}
             onCancel={handleClose}
-            width={900}
+            width="100vw"
+            style={{ top: 0, maxWidth: "100vw", paddingBottom: 0, margin: 0 }}
             footer={null}
             closable={false}
             className="create-campaign-modal"
@@ -627,7 +622,10 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                     </button>
                     <div className="create-campaign__title">新投放计划</div>
                     <div className="create-campaign__actions">
-                        <span className="create-campaign__help">发布之后会发生什么?</span>
+                        <span className="create-campaign__help">
+                            <HelpCircle />
+                            发布之后会发生什么?
+                        </span>
                         <Button onClick={handleSaveDraft} loading={saving}>
                             保存草稿
                         </Button>
@@ -662,7 +660,10 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                 </div>
 
                 <div className="create-campaign__footer">
-                    <span className="create-campaign__collapse">收起</span>
+                    <span className="create-campaign__collapse">
+                        <ChevronLeft />
+                        收起
+                    </span>
                 </div>
             </div>
         </Modal>
