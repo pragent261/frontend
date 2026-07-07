@@ -1,6 +1,8 @@
-import { Input, Layout } from "antd";
+import { Dropdown, Input, Layout } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { getUser, logout } from "../lib/auth";
 import {
   Bell,
   Bookmark,
@@ -30,6 +32,13 @@ type DashboardSummary = {
 
 export default function AppShell() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const navigate = useNavigate();
+  const currentUser = getUser();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -151,11 +160,31 @@ export default function AppShell() {
                 <Bell />
                 <span className="topbar__bell-dot">1</span>
               </span>
-              <button className="topbar__profile" type="button">
-                <div className="topbar__avatar">
-                  <img src={topAvatar} alt="" />
-                </div>
-              </button>
+              <Dropdown
+                trigger={["click"]}
+                menu={{
+                  items: [
+                    {
+                      key: "user",
+                      label: currentUser?.display_name || currentUser?.username || "未登录",
+                      disabled: true
+                    },
+                    { type: "divider" },
+                    {
+                      key: "logout",
+                      icon: <LogoutOutlined />,
+                      label: "退出登录",
+                      onClick: handleLogout
+                    }
+                  ]
+                }}
+              >
+                <button className="topbar__profile" type="button">
+                  <div className="topbar__avatar">
+                    <img src={topAvatar} alt="" />
+                  </div>
+                </button>
+              </Dropdown>
             </div>
           </header>
           <Outlet />
