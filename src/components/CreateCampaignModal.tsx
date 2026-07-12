@@ -79,6 +79,7 @@ interface FormData {
     dataTableName: string;
     influencerFiles: UploadFile[];
     influencerColumns: { name: string; type: string }[];
+    influencerRows: string[];
     // 内容
     contentDataSource: string;
     contentBriefFiles: UploadFile[];
@@ -95,6 +96,7 @@ const initialFormData: FormData = {
     dataTableName: "",
     influencerFiles: [],
     influencerColumns: [],
+    influencerRows: [],
     contentDataSource: "upload",
     contentBriefFiles: [],
     contentColumns: []
@@ -198,6 +200,21 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
 
             const campaign = await createResponse.json();
 
+            let createdTodoCount = 0;
+            if (formData.influencerRows.length > 0) {
+                const batchResponse = await apiFetch(
+                    `/v1/campaigns/${campaign.id}/collaborations/batch`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ influencers: formData.influencerRows })
+                    }
+                );
+                if (!batchResponse.ok) throw new Error("生成待办失败");
+                const batchResult = (await batchResponse.json()) as { created_count?: number };
+                createdTodoCount = batchResult.created_count ?? formData.influencerRows.length;
+            }
+
             // 再发布
             const publishResponse = await apiFetch(`/v1/campaigns/${campaign.id}/publish`, {
                 method: "POST"
@@ -205,7 +222,11 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
 
             if (!publishResponse.ok) throw new Error("发布失败");
 
-            message.success("投放计划已发布");
+            if (createdTodoCount > 0) {
+                message.success(`投放计划已发布，已生成 ${createdTodoCount} 条待办`);
+            } else {
+                message.success("投放计划已发布");
+            }
             onSuccess?.();
             handleClose();
         } catch (error) {
@@ -249,12 +270,25 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
             }
 
             if (target === "influencers") {
+                const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
+                const firstHeaderName = headers[0]?.name;
+                const influencerRows = rows
+                    .map(row => {
+                        const raw =
+                            firstHeaderName && row[firstHeaderName] !== undefined
+                                ? row[firstHeaderName]
+                                : Object.values(row)[0];
+                        return String(raw ?? "").trim();
+                    })
+                    .filter(Boolean);
+
                 updateFormData("influencerColumns", headers);
+                updateFormData("influencerRows", influencerRows);
+                message.success(`成功解析 ${headers.length} 个列，${influencerRows.length} 位博主`);
             } else {
                 updateFormData("contentColumns", headers);
+                message.success(`成功解析 ${headers.length} 个列`);
             }
-
-            message.success(`成功解析 ${headers.length} 个列`);
         } catch (error) {
             console.error("Excel parsing error:", error);
             message.error("文件解析失败，请确保文件格式正确");
@@ -404,6 +438,7 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                             parseExcelFile(info.fileList[0].originFileObj, "influencers");
                         } else {
                             updateFormData("influencerColumns", []);
+                            updateFormData("influencerRows", []);
                         }
                     }}
                     beforeUpload={() => false}
@@ -434,6 +469,7 @@ export default function CreateCampaignModal({ open, onClose, onSuccess }: Props)
                                 onClick={() => {
                                     updateFormData("influencerFiles", []);
                                     updateFormData("influencerColumns", []);
+                                    updateFormData("influencerRows", []);
                                 }}
                             >🗑️</span>
                         </div>
